@@ -58,3 +58,34 @@ function smoothMove(distance, direction, obj) {
         }, 1);
     }
 }
+
+
+function smoothDrift(distance, direction, obj) {
+
+    if (direction == 'left') {
+        var interval = setInterval(function () {
+            // if (distance == 0) {clearInterval(interval); return;}
+            obj.style.left = obj.offsetLeft-1+'px';
+        }, 0);
+    }
+
+    if (direction == 'right') {
+        var interval = setInterval(function () {
+            // if (distance == 0) {clearInterval(interval); return;}
+            obj.style.left = obj.offsetLeft+1+'px';
+        }, 0);
+    }
+
+    if (direction == 'up') {
+        var interval = setInterval(function () {
+            // if (distance == 0) {clearInterval(interval); return;}
+            obj.style.top = obj.offsetTop-1+'px';
+        }, 0);
+    }
+    if (direction == 'down') {
+        var interval = setInterval(function () {
+            // if (distance == 0) {clearInterval(interval); return;}
+            obj.style.top = obj.offsetTop+1+'px';
+        }, 0);
+    }
+}

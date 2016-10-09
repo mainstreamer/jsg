@@ -1,140 +1,142 @@
-
-var step = 100;
+var step = 50;
+var active = [];
+var body = [document.getElementById('user')];
+var wiggle = [];
+var info = {};
 
 function keyDispatcher(key) {
+    // addBlock();
+    // console.log(key);
     //invoked from html element
-        console.log(key);
-        switch (key.which) {
-            case 38 : go('up'); break;
-            case 40 : go('down'); break;
-            case 37 : go('left'); break;
-            case 39 : go('right'); break;
-            default : /*go(key);*/ break;
-        }
-
-}
-
-
-function go(where){
-
-    var obj= document.getElementById('user');
-
-    switch (where) {
-        case '-' : if (step > 1 ) step-=1; break;
-        case '=' : if (step < 20) step+=1; break;
-        default: smoothMove(step,where,obj);break;
+    switch (key.which) {
+        case 38 : go('up'); break;
+        case 40 : go('down'); break;
+        case 37 : go('left'); break;
+        case 39 : go('right'); break;
+        case 32 : stopMoving(); break; //space
+        case 13 : addBlock(); break; //enter
+        default :  break;
     }
 }
 
+function go(where){
 
-function smoothMove(distance, direction, obj) {
+    // var obj = document.getElementById('user');
+    wiggle[0] = where;
+    var obj = body;
+
+    // var obj = body[0];
+    //     var obj = ;
+        switch (where) {
+            case '-' : if (step > 1 ) step-=1; break;
+            case '=' : if (step < 20) step+=1; break;
+            default : smoothMove(where, obj); break;
+        }
+
+    // if (body.length > 1){follow(info.direction)}
+
+
+    // switch (where) {
+    //     case '-' : if (step > 1 ) step-=1; break;
+    //     case '=' : if (step < 20) step+=1; break;
+    //     default : smoothMove(where, obj); break;
+    // }
+}
+
+function follow(direction) {
+
+    var obj = body[1];
+    smoothMove(direction, obj);
+}
+
+function addBlock() {
+    var block = document.createElement("div");
+    block.style.width = '10px';
+    block.style.height = '10px';
+    block.style.background = 'purple';
+    block.style.position = 'absolute';
+
+    if (info.direction == 'right') {
+        block.style.top = body[body.length-1].style.top;
+        block.style.left = parseInt(body[body.length-1].style.left)-10;
+    }
+
+    if (info.direction == 'left') {
+        block.style.top = body[body.length-1].style.top;
+        block.style.left = parseInt(body[body.length-1].style.left)+10;
+    }
+
+    if (info.direction == 'up') {
+        block.style.top = parseInt(body[body.length-1].style.top) + 10;
+        block.style.left = body[body.length-1].style.left;
+    }
+
+    if (info.direction == 'down') {
+        block.style.top = parseInt(body[body.length-1].style.top) - 10;
+        block.style.left = body[body.length-1].style.left;
+    }
+
+    document.body.appendChild(block);
+    body.push(block);
+    wiggle.push(wiggle[wiggle.length-1]);
+
+    // smoothMove(info.direction, block);
+
+}
+
+function stopMoving(){
+    active.forEach(function (x) {
+        clearInterval(x);
+    });
+}
+
+function smoothMove(direction, obj) {
+    stopMoving();
+    info.direction = direction;
 
     if (direction == 'left') {
         var interval = setInterval(function () {
-            if (distance == 0) {clearInterval(interval); return;}
-            obj.style.left = obj.offsetLeft-1+'px';
-            distance--;
-        }, 1);
+            obj.forEach(function(obj){
+                obj.style.left = obj.offsetLeft-1+'px'
+            });
+            // obj.style.left = obj.offsetLeft-1+'px';
+        }, 10);
+        active.push(interval);
     }
 
     if (direction == 'right') {
         var interval = setInterval(function () {
-            if (distance == 0) {clearInterval(interval); return;}
-            obj.style.left = obj.offsetLeft+1+'px';
-            distance--;
-        }, 1);
+            obj.forEach(function(obj){
+                obj.style.left = obj.offsetLeft+1+'px'
+            });
+        }, 10);
+        active.push(interval);
     }
 
     if (direction == 'up') {
         var interval = setInterval(function () {
-            if (distance == 0) {clearInterval(interval); return;}
-            obj.style.top = obj.offsetTop-1+'px';
-            distance--;
-        }, 1);
+            obj.forEach(function(obj){
+                obj.style.top = obj.offsetTop-1+'px';
+            });
+            // obj.style.top = obj.offsetTop-1+'px';
+        }, 10);
+        active.push(interval);
     }
+
     if (direction == 'down') {
         var interval = setInterval(function () {
-            if (distance == 0) {clearInterval(interval); return;}
-            obj.style.top = obj.offsetTop+1+'px';
-            distance--;
-        }, 1);
+
+            /*
+                1) read[0] wiggle - draw
+                2) read[1] wiggle - 
+                2) draw others according to wiggle and assign second ele wiggle down
+             */
+
+            obj.forEach(function(obj){
+                obj.style.top = obj.offsetTop+1+'px';
+            });
+            // obj.style.top = obj.offsetTop+1+'px';
+        }, 10);
+        active.push(interval);
     }
-}
-
-
-function Fan (team){
-
-    this.team = team;
-
-    this.emotion  = function(game) {
-        if (game.winner == this.team) {
-            // alert('YEAH');
-            console.log('YEAH '+this.team+' won!' );
-            return 'YEAH';
-        } else if (game.loser == this.team){
-            console.log('OH NOOOOO! '+this.team+' lost!');
-            return 'OH NOOOOO!';
-        } else {
-            console.log('I DONT CARE, I support '+this.team);
-            return 'I DONT CARE';
-        }
-    }
-
-};
-
-// var sunderlandFan = {
-//     team : 'sunderland',
-//     emotion : function(game) {
-//         if (game.winner == this.team) {
-//             // alert('YEAH');
-//             console.log('YEAH');
-//             return 'YEAH';
-//         } else if (game.loser == this.team){
-//             console.log('OH NOOOOO!');
-//             return 'OH NOOOOO!';
-//         } else {
-//             console.log('I DONT CARE');
-//             return 'I DONT CARE';
-//         }
-//     }
-//
-// };
-
-var manUnitedFan = new Fan('manchester');
-var chelseaFan = new Fan('chelsea');
-var sunderlandFan = new Fan('sunderland');
-
-var game  = {
-    subscribers : [],
-    subscribe : function (item) {
-        this.subscribers.push(item)
-    },
-    unsubscribe : function (item) {
-        this.subscribers.remove(item)
-    },
-    fire : function (ev) {
-        this.subscribers.forEach(function (item) {
-            item.emotion(ev);
-        });
-    }
-
-};
-
-var gameEvent = {
-    winner : 'chelsea',
-    loser : 'manchester'
-};
-
-
-
-function start() {
-    // console.log('started');
-    // console.log(sunderlandFan.emotion());
-    game.subscribe(sunderlandFan);
-    game.subscribe(manUnitedFan);
-    game.subscribe(chelseaFan);
-
-    game.fire(gameEvent);
-    // console.log(game.fire(gameEvent));
-    // console.log(sunderlandFan.emotion(game));
 }
