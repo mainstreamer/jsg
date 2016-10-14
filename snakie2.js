@@ -64,6 +64,7 @@ function Snake(){
                             this.active.forEach(function (x) {
                                  clearInterval(x);
                             });
+                            this.active = [];
                      }
 }
 
@@ -90,7 +91,7 @@ function main() {
     // snake.wiggle.push('right');
     snake.active.push(setInterval(function() {
         snake.move(snake);
-    }, 20));
+    }, 10));
 
     window.onkeydown = function(key) {
         switch (key.which) {
@@ -98,7 +99,10 @@ function main() {
             case 40 : snake.buffer = 'down'; snake.move(snake); break;
             case 37 : snake.buffer = 'left'; snake.move(snake); break;
             case 39 : snake.buffer = 'right'; snake.move(snake); break;
-            case 32 : snake.stopMoving(); break; //space
+            case 32 : if (snake.active.length == 0) {snake.active.push(setInterval(function() {
+                        snake.move(snake);
+                      }, 10))} else { snake.stopMoving(); }; break; //space - pause/play
+            case 27 : snake.stopMoving(); break; //esc
             case 13 : snake.addCell(); break; //enter
             default :  break;
         }
