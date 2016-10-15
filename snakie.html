@@ -2,32 +2,27 @@
 <head>
     <script src="snakie.js" defer></script>
 </head>
-<body  onkeydown="return keyDispatcher(event)">
+<body  onload="main()">
       <!--onkeydown="return keyPressed(event)"-->
 <div id="main">
 
     <div id="user" style="
         /*background:url('http://i1.wp.com/freepngimages.com/wp-content/uploads/2015/08/ufo-spaceship.png?fit=600%2C600');*/
-        background: purple;
+        /*background:url('https://s-media-cache-ak0.pinimg.com/236x/ef/d5/c8/efd5c8193ec7ac7f479030ae51a299af.jpg');*/
+        background: black;
         width: 10px;
         height: 10px;
         position:absolute;
 
-    "
-    onmouseover="go('right')"
-    >
+    ">
         <!--<img src="http://i1.wp.com/freepngimages.com/wp-content/uploads/2015/08/ufo-spaceship.png?fit=600%2C600">-->
     </div>
-    <!--<div id="user2"-->
-         <!--style="-->
-        <!--/*background:url('http://i1.wp.com/freepngimages.com/wp-content/uploads/2015/08/ufo-spaceship.png?fit=600%2C600');*/-->
-        <!--background: purple;-->
-        <!--width: 10px;-->
-        <!--height: 10px;-->
-        <!--position:absolute;-->
 
-    <!--"-->
-    <!--&gt;</div>-->
+        <!--<img src="http://i1.wp.com/freepngimages.com/wp-content/uploads/2015/08/ufo-spaceship.png?fit=600%2C600">-->
+<div style="position: fixed; top: 0px; left: 10px; width: 300px; opacity: 0.5">
+    <p>Snakie length: <span id="length">1</span></p>
+
+</div>
 </div>
 <div id="login"></div>
 <div id="enemy"></div>

@@ -1,227 +1,128 @@
-var step = 50;
-var active = [];
-var body = [ new Cell(document.getElementById('user')) ];
-var wiggle = [];
-var info = {};
+function Snake(){
+    this.active = [],
+    this.buffer = null,
+    this.growBuffer = null,
+    this.directionStep = 0,
+    this.direction = 'right',
+    this.body = [new Cell(document.getElementById('user'))],
+    this.wiggle = [this.direction],
+    this.delay = 0;
+    this.move = function(that) {
+                        that.body.forEach(function(cell) {
+                            if (cell.index == 0) {
+                                cell.move(that.wiggle[that.wiggle.length-1]);
+                            } else {
+                                cell.move(that.wiggle[that.wiggle.length-cell.index-1]);
+                            }
+                        });
+                        that.directionStep++;
+                        if (that.directionStep == 10) {
+                            that.directionStep = 0;
+                            if (that.growBuffer !=null) {
+                                that.addCell();
+                                that.growBuffer = null;
+                            }
+                            if (that.buffer != null) {
+                                that.direction = that.buffer;
+                                that.wiggle.push(that.direction);
+                                that.buffer = null;
+                            } else {
+                                that.wiggle.push(that.direction);
+                            }
+                            if (that.wiggle.length > 200) {
+                                that.wiggle.splice(0, 200-that.wiggle.length+2)
+                            }
+                        }
+                }
+    this.addCell = function() {
+                        if (this.directionStep != 0) {
+                            this.growBuffer = 'queueing';
+                        } else {
+                            var block = document.createElement("div");
+                            block.style.width = '10px';
+                            block.style.height = '10px';
+                            // block.style.background = 'url(https://s-media-cache-ak0.pinimg.com/236x/67/36/e5/6736e526fd50d61057619c7d27e3c8cc.jpg)';
+
+                            block.style.background = getRandomColor();
+                            block.style.position = 'absolute';
+                            var direction = this.wiggle[this.wiggle.length - this.body.length];
+                            block.style.top = this.body[this.body.length-1].element.style.top;
+                            block.style.left = this.body[this.body.length-1].element.style.left;
+
+                            switch (direction) {
+                                case 'right' : block.style.left = parseInt(this.body[this.body.length-1].element.style.left)-10; break;
+                                case 'left' : block.style.left = parseInt(this.body[this.body.length-1].element.style.left)+10; break;
+                                case 'up' : block.style.top = parseInt(this.body[this.body.length-1].element.style.top) + 10; break;
+                                case 'down' : block.style.top = parseInt(this.body[this.body.length-1].element.style.top) - 10; break;
+                                default : break;
+                            }
+
+                            document.body.appendChild(block);
+                            var newCell = new Cell(block);
+                            newCell.direction = this.body[this.body.length-1].direction;
+                            newCell.index = this.body.length;
+                            this.body.push(newCell);
+
+                            document.getElementById('length').textContent = this.body.length;
+                        }
+               }
+    this.stopMoving = function() {
+                            this.active.forEach(function (x) {
+                                 clearInterval(x);
+                            });
+                            this.active = [];
+                     }
+}
 
 function Cell(element) {
     this.element = element;
-    this.direction = '';
+    this.direction = 'right';
     this.cnt = 0;
     this.index = 0;
-    // element: document.getElementById('user'),
-    this.moveRight = function () {
-        this.element.style.left = this.element.offsetLeft+1+'px'
-    };
-    this.moveLeft = function () {
-        this.element.style.left = this.element.offsetLeft-1+'px';
-    };
-    this.moveUp = function () {
-        this.element.style.top = this.element.offsetTop-1+'px';
-    };
-    this.moveDown = function () {
-        this.element.style.top = this.element.offsetTop+1+'px';
-    }
-};
-
-
-function wiggle(direction) {
-    wiggle.pop();
-    wiggle.unshift(direction);
-}
-
-function keyDispatcher(key) {
-    // console.log(key);
-    //invoked from html element
-    switch (key.which) {
-        case 38 : go('up'); break;
-        case 40 : go('down'); break;
-        case 37 : go('left'); break;
-        case 39 : go('right'); break;
-        case 32 : stopMoving(); break; //space
-        case 13 : addBlock(); break; //enter
-        default :  break;
-    }
-}
-
-function go(where){
-
-    // var obj = document.getElementById('user');
-    wiggle[0] = where;
-    // console.log(wiggle);
-    var obj = body;
-
-        switch (where) {
-            case '-' : if (step > 1 ) step-=1; break;
-            case '=' : if (step < 20) step+=1; break;
-            default : smoothMove(where, obj); break;
+    this.directionStep = 0;
+    this.move = function (direction) {
+        switch (direction) {
+            case 'right' : this.element.style.left = this.element.offsetLeft+1+'px'; break;
+            case 'left' : this.element.style.left = this.element.offsetLeft-1+'px'; break;
+            case 'up' : this.element.style.top = this.element.offsetTop-1+'px'; break;
+            case 'down' : this.element.style.top = this.element.offsetTop+1+'px'; break;
+            default : break;
         }
-}
-
-function addBlock() {
-    var block = document.createElement("div");
-    block.style.width = '10px';
-    block.style.height = '10px';
-    block.style.background = 'purple';
-    block.style.position = 'absolute';
-
-    if (info.direction == 'right') {
-        block.style.top = body[body.length-1].element.style.top;
-        block.style.left = parseInt(body[body.length-1].element.style.left)-10;
-    }
-
-    if (info.direction == 'left') {
-        block.style.top = body[body.length-1].element.style.top;
-        block.style.left = parseInt(body[body.length-1].element.style.left)+10;
-    }
-
-    if (info.direction == 'up') {
-        block.style.top = parseInt(body[body.length-1].element.style.top) + 10;
-        block.style.left = body[body.length-1].element.style.left;
-    }
-
-    if (info.direction == 'down') {
-        block.style.top = parseInt(body[body.length-1].element.style.top) - 10;
-        block.style.left = body[body.length-1].element.style.left;
-    }
-
-    document.body.appendChild(block);
-    var newCell = new Cell(block);
-    newCell.direction = body[body.length-1].direction;
-    newCell.index = body.length;
-    body.push(newCell);
-    wiggle.push(wiggle[wiggle.length-1]);
-
-    // smoothMove(info.direction, block);
-
-}
-
-function stopMoving(){
-    active.forEach(function (x) {
-        clearInterval(x);
-    });
-}
-
-function smoothMove(direction, obj) {
-    stopMoving();
-    info.direction = direction;
-    var i = 0;
-    body[0].direction = direction;
-
-
-    if (direction == 'left') {
-        var cnt = 0;
-        var interval = setInterval(function () {
-            if (cnt == 10) {
-                cnt = 0;
-                wiggle.pop();
-                wiggle.unshift(direction);
-            } else {cnt++; }
-
-            obj.forEach(function (obj) {
-                if (obj.direction != direction && obj.cnt < 10) {
-                    if (obj.direction == 'right') obj.moveRight();
-                    if (obj.direction == 'left') obj.moveLeft();
-                    if (obj.direction == 'up') obj.moveUp();
-                    if (obj.direction == 'down') obj.moveDown();
-                    obj.cnt++;
-                }
-
-                else if (obj.direction != direction && obj.cnt == 10) {
-                    // obj.direction = direction;
-                    obj.direction = wiggle[obj.index];
-                    obj.moveLeft();
-                    obj.cnt = 0;
-                } else { obj.moveLeft(); }
-            });
-        }, 10);
-        active.push(interval);
-    }
-
-    if (direction == 'right') {
-        var cnt = 0;
-
-        var interval = setInterval(function () {
-            if (cnt == 10) {
-                cnt = 0;
-                wiggle.pop();
-                wiggle.unshift(direction);
-            } else {cnt++; }
-
-            obj.forEach(function (obj) {
-                if (obj.direction != direction && obj.cnt < 10) {
-                    if (obj.direction == 'right') obj.moveRight();
-                    if (obj.direction == 'left') obj.moveLeft();
-                    if (obj.direction == 'up') obj.moveUp();
-                    if (obj.direction == 'down') obj.moveDown();
-                    obj.cnt++;
-                }
-
-                else if (obj.direction != direction && obj.cnt == 10) {
-                    obj.direction = wiggle[obj.index];
-                    obj.moveRight();
-                    obj.cnt = 0;
-                } else { obj.moveRight(); }
-            });
-
-        }, 10);
-        active.push(interval);
-    }
-
-    if (direction == 'up') {
-        var cnt = 0;
-        var interval = setInterval(function () {
-            if (cnt == 10) {
-                cnt = 0;
-                wiggle.pop();
-                wiggle.unshift(direction);
-            } else {cnt++; }
-
-            obj.forEach(function (obj) {
-                if (obj.direction != direction && obj.cnt < 10) {
-                    if (obj.direction == 'right') obj.moveRight();
-                    if (obj.direction == 'left') obj.moveLeft();
-                    if (obj.direction == 'up') obj.moveUp();
-                    if (obj.direction == 'down') obj.moveDown();
-                    obj.cnt++;
-                }
-
-                else if (obj.direction != direction && obj.cnt == 10) {
-                    obj.direction = wiggle[obj.index];
-                    obj.moveUp();
-                    obj.cnt = 0;
-                } else { obj.moveUp(); }
-            });
-        }, 10);
-        active.push(interval);
-    }
-
-    if (direction == 'down') {
-        var cnt = 0;
-        var interval = setInterval(function () {
-            if (cnt == 10) {
-                cnt = 0;
-                wiggle.pop();
-                wiggle.unshift(direction);
-            } else {cnt++; }
-
-            obj.forEach(function (obj) {
-                if (obj.direction != direction && obj.cnt < 10) {
-                    if (obj.direction == 'right') obj.moveRight();
-                    if (obj.direction == 'left') obj.moveLeft();
-                    if (obj.direction == 'up') obj.moveUp();
-                    if (obj.direction == 'down') obj.moveDown();
-                    obj.cnt++;
-                }
-
-                else if (obj.direction != direction && obj.cnt == 10) {
-                    obj.direction = wiggle[obj.index];
-                    obj.moveDown();
-                    obj.cnt = 0;
-                } else { obj.moveDown(); }
-            });
-        }, 10);
-        active.push(interval);
     }
 }
 
+function main() {
+    var snake = new Snake;
+    snake.active.push(setInterval(function() {
+        snake.move(snake);
+    }, snake.delay));
+
+    window.onkeydown = function(key) {
+        switch (key.which) {
+            case 38 : snake.buffer = 'up'; break;
+            case 40 : snake.buffer = 'down'; break;
+            case 37 : snake.buffer = 'left'; break;
+            case 39 : snake.buffer = 'right'; break;
+            case 32 : if (snake.active.length == 0) {
+                            snake.active.push(setInterval(
+                                function() {
+                                    snake.move(snake);
+                                }, snake.delay))
+                      } else {
+                            snake.stopMoving();
+                      } break; //space - pause/play
+            case 27 : snake.stopMoving(); break; //esc
+            case 13 : snake.addCell(); break; //enter
+            default :  break;
+        }
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
