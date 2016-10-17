@@ -7,7 +7,22 @@ function Snake(){
     this.body = [new Cell(document.getElementById('user'))],
     this.wiggle = [this.direction],
     this.delay = 0;
+    this.bounce = function () {
+        if (parseInt(this.body[0].element.style.left) <= 1 && this.direction == 'left') {
+            this.buffer = 'right';
+        }
+        if (parseInt(this.body[0].element.style.left) >= Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 10 && this.direction == 'right') {
+            this.buffer = 'left';
+        }
+        if (parseInt(this.body[0].element.style.top) >= Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 10 && this.direction == 'down') {
+            this.buffer = 'up';
+        }
+        if (parseInt(this.body[0].element.style.top) <= 1&& this.direction == 'up') {
+            this.buffer = 'down';
+        }
+    }
     this.move = function(that) {
+                        this.bounce();
                         that.body.forEach(function(cell) {
                             if (cell.index == 0) {
                                 cell.move(that.wiggle[that.wiggle.length-1]);
@@ -33,6 +48,8 @@ function Snake(){
                                 that.wiggle.splice(0, 200-that.wiggle.length+2)
                             }
                         }
+
+
                 }
     this.addCell = function() {
                         if (this.directionStep != 0) {
@@ -74,7 +91,7 @@ function Snake(){
                      }
 }
 
-function Cell(element) {
+function Cell(element, snake) {
     this.element = element;
     this.direction = 'right';
     this.cnt = 0;
